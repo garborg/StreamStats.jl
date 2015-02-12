@@ -13,7 +13,7 @@ module TestSample
         for x in xs
             update!(stat, x)
         end
-        for sample in state(stat)
+        for sample in sample(stat)
             @test sample in xs
             counts[sample] += 1
         end

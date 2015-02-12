@@ -25,7 +25,7 @@ function update!(stat::Sample, x::Any)
 end
 
 # This should really return a Nullable
-function state{T}(stat::Sample{T})
+function sample{T}(stat::Sample{T})
    if stat.n < length(stat.sample)
        return T[]
    else

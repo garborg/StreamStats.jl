@@ -11,7 +11,7 @@ function update!(stat::Min, x::Real)
     return
 end
 
-state(stat::Min) = stat.m
+Base.minimum(stat::Min) = stat.m
 
 nobs(stat::Min) = stat.n
 
@@ -30,7 +30,7 @@ function Base.empty!(stat::Min)
 end
 
 function Base.show(io::IO, stat::Min)
-    m = state(stat)
+    m = minimum(stat)
     n = nobs(stat)
     @printf(io, "Online Min\n")
     @printf(io, " * Min:  %f\n", m)

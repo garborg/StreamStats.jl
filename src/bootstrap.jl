@@ -2,14 +2,16 @@ abstract Bootstrap <: StreamStat
 
 ## Double-or-nothing online bootstrap
 type BernoulliBootstrap{S <: ContinuousUnivariateStreamStat} <: Bootstrap
-    replicates::Vector{S}           # replicates of base stat
-    cached_state::Vector{Float64}  # cache of replicate states
-    n::Int                          # number of observations
+    stat_method::Function            # statistic
+    replicates::Vector{S}            # replicates of base stat
+    cached_state::Vector{Float64}    # cache of replicate states
+    n::Int                           # number of observations
     cache_is_dirty::Bool
 end
 
 ## Poisson weighted online bootstrap
 type PoissonBootstrap{S <: ContinuousUnivariateStreamStat} <: Bootstrap
+    stat_method::Function            # statistic
     replicates::Vector{S}           # replicates of base stat
     cached_state::Vector{Float64}  # cache of replicate states
     n::Int                          # number of observations
@@ -26,22 +28,24 @@ end
 # Double or nothing bootstrap
 function BernoulliBootstrap{S <: ContinuousUnivariateStreamStat}(
     stat::S,
+    method::Function,
     R::Int = 1_000,
     α::Real = 0.05,
 )
     replicates = S[copy(stat) for i in 1:R]
     cached_state = Array(Float64, R)
-    return BernoulliBootstrap(replicates, cached_state, 0, true)
+    return BernoulliBootstrap(method, replicates, cached_state, 0, true)
 end
 
 function PoissonBootstrap{S <: ContinuousUnivariateStreamStat}(
     stat::S,
+    method::Function,
     R::Int = 1_000,
     α::Float64 = 0.05,
 )
     replicates = S[copy(stat) for i in 1:R]
     cached_state = Array(Float64, R)
-    return PoissonBootstrap(replicates, cached_state, 0, true)
+    return PoissonBootstrap(method, replicates, cached_state, 0, true)
 end
 
 function update!(stat::BernoulliBootstrap, args::Any...)
@@ -78,11 +82,11 @@ end
 
 # TODO: Make this work with non-univariate statistics by taking marginal
 #       quantiles
-function state(stat::Bootstrap)
+function replicates(stat::Bootstrap)
     return stat.replicates
 end
 
-function state(stat::FrozenBootstrap)
+function replicates(stat::FrozenBootstrap)
     return stat.cached_state
 end
 
@@ -90,7 +94,7 @@ end
 function cached_state(stat::Bootstrap)
     if stat.cache_is_dirty
         for (i, replicate) in enumerate(stat.replicates)
-            stat.cached_state[i] = state(replicate)
+            stat.cached_state[i] = stat.stat_method(replicate)
         end
         stat.cache_is_dirty = false
     end
@@ -132,6 +136,7 @@ nobs(stat::Bootstrap) = stat.n
 
 # Assumes a and b are independent.
 function Base.(:-)(a::Bootstrap, b::Bootstrap)
+    println(cached_state(a))
     return FrozenBootstrap(
         cached_state(a) - cached_state(b),
         nobs(a) + nobs(b)

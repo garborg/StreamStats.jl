@@ -10,7 +10,7 @@ module TestMean
         for x in xs
             update!(stat, x)
         end
-        online_m = state(stat)
+        online_m = mean(stat)
         online_n = nobs(stat)
         batch_m = mean(xs)
         @test_approx_eq(online_m, batch_m)
@@ -26,7 +26,7 @@ module TestMean
             for x in xs
                 update!(stat, x)
             end
-            online_m = state(stat)
+            online_m = mean(stat)
             online_n = nobs(stat)
             batch_m = mean(xs)
             @test abs(online_m - batch_m) < 1e-8 * abs(batch_m)
