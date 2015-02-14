@@ -25,6 +25,8 @@ nobs(stat::Covariance) = stat.n
 Base.cov(stat::Covariance) = stat.sum_sqs / (stat.n - 1)
 Base.cor(stat::Covariance) = cov(stat) / (std(stat.x) * std(stat.y))
 
+state(stat::Covariance) = Base.cov(stat)
+
 Base.copy(stat::Covariance) = Covariance(copy(stat.x), copy(stat.y), stat.sum_sqs, stat.n)
 
 function Base.merge(a::Covariance, b::Covariance)
@@ -54,8 +56,8 @@ function Base.show(io::IO, stat::Covariance)
     cov = cov(stat)
     cor = cor(stat)
     n = nobs(stat)
-    @printf(io, "Online Covarianceariance\n")
-    @printf(io, " * Covarianceariance: %f\n", cov)
+    @printf(io, "Online Covariance\n")
+    @printf(io, " * Covariance: %f\n", cov)
     @printf(io, " * Correlation: %f\n", cor)
     @printf(io, " * N:          %d\n", n)
     return

@@ -13,6 +13,8 @@ end
 
 Base.maximum(stat::Max) = stat.m
 
+state(stat::Max) = Base.maximum(stat)
+
 nobs(stat::Max) = stat.n
 
 Base.copy(stat::Max) = Max(stat.m, stat.n)

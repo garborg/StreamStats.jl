@@ -2,7 +2,6 @@ abstract Bootstrap <: StreamStat
 
 ## Double-or-nothing online bootstrap
 type BernoulliBootstrap{S <: ContinuousUnivariateStreamStat} <: Bootstrap
-    stat_method::Function            # statistic
     replicates::Vector{S}            # replicates of base stat
     cached_state::Vector{Float64}    # cache of replicate states
     n::Int                           # number of observations
@@ -11,7 +10,6 @@ end
 
 ## Poisson weighted online bootstrap
 type PoissonBootstrap{S <: ContinuousUnivariateStreamStat} <: Bootstrap
-    stat_method::Function            # statistic
     replicates::Vector{S}           # replicates of base stat
     cached_state::Vector{Float64}  # cache of replicate states
     n::Int                          # number of observations
@@ -28,24 +26,22 @@ end
 # Double or nothing bootstrap
 function BernoulliBootstrap{S <: ContinuousUnivariateStreamStat}(
     stat::S,
-    method::Function,
     R::Int = 1_000,
     α::Real = 0.05,
 )
     replicates = S[copy(stat) for i in 1:R]
     cached_state = Array(Float64, R)
-    return BernoulliBootstrap(method, replicates, cached_state, 0, true)
+    return BernoulliBootstrap(replicates, cached_state, 0, true)
 end
 
 function PoissonBootstrap{S <: ContinuousUnivariateStreamStat}(
     stat::S,
-    method::Function,
     R::Int = 1_000,
     α::Float64 = 0.05,
 )
     replicates = S[copy(stat) for i in 1:R]
     cached_state = Array(Float64, R)
-    return PoissonBootstrap(method, replicates, cached_state, 0, true)
+    return PoissonBootstrap(replicates, cached_state, 0, true)
 end
 
 function update!(stat::BernoulliBootstrap, args::Any...)
@@ -58,6 +54,7 @@ function update!(stat::BernoulliBootstrap, args::Any...)
         end
     end
     stat.cache_is_dirty = true
+
     return
 end
 
@@ -90,11 +87,13 @@ function replicates(stat::FrozenBootstrap)
     return stat.cached_state
 end
 
+state(stat::Bootstrap) = stat.replicates
+
 # update cached_state' states if necessary and return their values
 function cached_state(stat::Bootstrap)
     if stat.cache_is_dirty
         for (i, replicate) in enumerate(stat.replicates)
-            stat.cached_state[i] = stat.stat_method(replicate)
+            stat.cached_state[i] = state(replicate)
         end
         stat.cache_is_dirty = false
     end
@@ -157,6 +156,7 @@ end
 function Base.show(io::IO, stat::Bootstrap)
     @printf("%s:\n", typeof(stat))
     @printf(" * Replicates: %d\n", length(stat.cached_state))
+    @printf(" * Observations: %d\n", stat.n)
     lower, upper = ci(stat, 0.05)
     @printf(" * Confidence Interval: [%f, %f]", lower, upper)
 end

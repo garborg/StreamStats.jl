@@ -13,6 +13,8 @@ end
 
 Base.minimum(stat::Min) = stat.m
 
+state(stat::Min) = Base.minimum(stat)
+
 nobs(stat::Min) = stat.n
 
 Base.copy(stat::Min) = Min(stat.m, stat.n)

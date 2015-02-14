@@ -1,9 +1,8 @@
 module StreamStats
     import StatsBase, Distributions
-    import Base.mean, Base.std, Base.var, Base.cov, Base.cor
-    import Base.maximum, Base.minimum
 
-    export update!, state, nobs, rand, ci, sample
+    export update!, state, nobs, ci, replicates
+    export mean, std, var, cov, cor, maximum, minimum
 
     include("streamstat.jl")
     include("mean.jl")

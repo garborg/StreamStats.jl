@@ -28,12 +28,23 @@ function update!(stat::Moments, x::Real)
 end
 
 function state(stat::Moments)
-    m = stat.m1
-    v = stat.m2 / (stat.n - 1)
-    s = sqrt(stat.n) * stat.m3 / stat.m2^1.5
-    k = stat.n * stat.m4 / (stat.m2 * stat.m2) - 3.0
+    return (mean(stat), var(stat), skew(stat), kurtosis(stat))
+end
 
-    return (m, v, s, k)
+function Base.mean(stat::Moments)
+    return stat.m1
+end
+
+function Base.var(stat::Moments)
+    return stat.m2 / (stat.n - 1)
+end
+
+function skew(stat::Moments)
+    return sqrt(stat.n) * stat.m3 / stat.m2^1.5
+end
+
+function kurtosis(stat::Moments)
+    return stat.n * stat.m4 / (stat.m2 * stat.m2) - 3.0
 end
 
 nobs(stat::Moments) = stat.n

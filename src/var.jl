@@ -25,9 +25,12 @@ function update!(stat::Variance, x::Real)
 end
 
 Base.var(stat::Variance) = stat.v_hat
+
 Base.std(stat::Variance) = sqrt(var(stat))
+
 Base.mean(stat::Variance) = stat.m
 
+state(stat::Variance) = var(stat)
 
 nobs(stat::Variance) = stat.n
 
@@ -55,8 +58,8 @@ function Base.show(io::IO, stat::Variance)
     v = var(stat)
     s = std(stat)
     n = nobs(stat)
-    @printf(io, "Online Varianceiance\n")
-    @printf(io, " * Varianceiance:  %f\n", v)
+    @printf(io, "Online Variance\n")
+    @printf(io, " * Variance:  %f\n", v)
     @printf(io, " * Std. Dev.: %f\n", v)
     @printf(io, " * N:         %d\n", n)
     return

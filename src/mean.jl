@@ -14,6 +14,8 @@ end
 
 Base.mean(stat::Mean) = stat.m
 
+state(stat::Mean) = Base.mean(stat)
+
 nobs(stat::Mean) = stat.n
 
 Base.copy(stat::Mean) = Mean(stat.m, stat.n)

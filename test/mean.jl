@@ -11,9 +11,11 @@ module TestMean
             update!(stat, x)
         end
         online_m = mean(stat)
+        online_ms = state(stat)
         online_n = nobs(stat)
         batch_m = mean(xs)
         @test_approx_eq(online_m, batch_m)
+        @test_approx_eq(online_ms, batch_m)
         @test online_n == n
     end
 

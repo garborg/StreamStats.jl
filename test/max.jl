@@ -11,6 +11,7 @@ module TestMax
             update!(stat, x)
         end
         online_m = maximum(stat)
+        online_ms = state(stat)
         online_n = nobs(stat)
         batch_m = maximum(xs)
         @test online_m == batch_m

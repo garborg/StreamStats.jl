@@ -25,13 +25,15 @@ function update!(stat::Sample, x::Any)
 end
 
 # This should really return a Nullable
-function sample{T}(stat::Sample{T})
+function state{T}(stat::Sample{T})
    if stat.n < length(stat.sample)
        return T[]
    else
        return stat.sample
    end
 end
+
+StatsBase.sample{T}(stat::Sample{T}) = state(stat)
 
 nobs(stat::Sample) = stat.n
 

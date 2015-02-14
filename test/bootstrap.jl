@@ -7,8 +7,8 @@ module TestBootstrap
     for n in rand(1:10_000, 10)
         xs = rand(n)
         inner_stat = StreamStats.Mean()
-        stat1 = StreamStats.BernoulliBootstrap(inner_stat, mean)
-        stat2 = StreamStats.PoissonBootstrap(inner_stat, mean)
+        stat1 = StreamStats.BernoulliBootstrap(inner_stat)
+        stat2 = StreamStats.PoissonBootstrap(inner_stat)
         for x in xs
             update!(stat1, x)
             update!(stat2, x)
@@ -33,31 +33,31 @@ module TestBootstrap
         @test m + 1 * sem <= upper2 <= m + 3 * sem
     end
 
-    # CI's for standard deviation of uniform draws
+    # CI's for variance of uniform draws
     for n in rand(1:10_000, 10)
         xs = rand(n)
         inner_stat = StreamStats.Variance()
-        stat1 = StreamStats.BernoulliBootstrap(inner_stat, std)
-        stat2 = StreamStats.PoissonBootstrap(inner_stat, std)
+        stat1 = StreamStats.BernoulliBootstrap(inner_stat)
+        stat2 = StreamStats.PoissonBootstrap(inner_stat)
         for x in xs
             update!(stat1, x)
             update!(stat2, x)
         end
         lower1, upper1 = ci(stat1, 0.05, :quantile)
         lower2, upper2 = ci(stat2, 0.05, :quantile)
-        @test lower1 <= std(xs) <= upper1
-        @test lower2 <= std(xs) <= upper2
+        @test lower1 <= var(xs) <= upper1
+        @test lower2 <= var(xs) <= upper2
 
         n_lower1, n_upper1 = ci(stat1, 0.05, :normal)
         n_lower2, n_upper2 = ci(stat2 , 0.05, :normal)
-        @test n_lower1 <= std(xs) <= n_upper1
-        @test n_lower2 <= std(xs) <= n_upper2
+        @test n_lower1 <= var(xs) <= n_upper1
+        @test n_lower2 <= var(xs) <= n_upper2
     end
 
     # test rand() method
     n = 1_000
-    b1 = StreamStats.BernoulliBootstrap(StreamStats.Mean(), mean, 10_000)
-    b2 = StreamStats.BernoulliBootstrap(StreamStats.Mean(), mean, 10_000)
+    b1 = StreamStats.BernoulliBootstrap(StreamStats.Mean(), 10_000)
+    b2 = StreamStats.BernoulliBootstrap(StreamStats.Mean(), 10_000)
     xs = rand(n)
     for i in xs
         update!(b1, i)

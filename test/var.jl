@@ -12,10 +12,12 @@ module TestVariance
         end
         online_v = var(stat)
         online_s = std(stat)
+        online_vs = state(stat)
         online_n = nobs(stat)
         batch_v = var(xs)
         batch_s = std(xs)
         @test_approx_eq(online_v, batch_v)
+        @test_approx_eq(online_vs, batch_v)
         @test_approx_eq(online_s, batch_s)
         @test online_n == n
     end
